@@ -1,0 +1,16 @@
+# 构建产物
+build/
+out/
+logs/
+apk/
+test/tmp/
+*.class
+*.apk
+
+# Gradle 缓存
+.gradle/
+
+# 依赖与工具链：由 deps 里的 Gradle 工程下载，不入库
+toolchain/aars/
+toolchain/*.jar
+toolchain/*.keystore

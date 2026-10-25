@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 莫奈风格静态调色板（睡莲 / 日出·印象），Android 12 以下使用 -->
+    <color name="monet_light_primary">#4C63B6</color>
+    <color name="monet_light_on_primary">#FFFFFF</color>
+    <color name="monet_light_primary_container">#DCE3FF</color>
+    <color name="monet_light_on_primary_container">#001A54</color>
+    <color name="monet_light_secondary">#6A5B93</color>
+    <color name="monet_light_on_secondary">#FFFFFF</color>
+    <color name="monet_light_secondary_container">#E7DEFF</color>
+    <color name="monet_light_on_secondary_container">#210F4A</color>
+    <color name="monet_light_tertiary">#A9605C</color>
+    <color name="monet_light_on_tertiary">#FFFFFF</color>
+    <color name="monet_light_tertiary_container">#FFDAD4</color>
+    <color name="monet_light_on_tertiary_container">#3D0807</color>
+    <color name="monet_light_background">#FBFAFF</color>
+    <color name="monet_light_surface">#FBFAFF</color>
+    <color name="monet_light_surface_variant">#E4E1F5</color>
+    <color name="monet_light_on_surface">#1A1B29</color>
+    <color name="monet_light_on_surface_variant">#47475C</color>
+    <color name="monet_light_outline">#77778F</color>
+    <color name="monet_light_error">#B3261E</color>
+    <color name="monet_light_on_error">#FFFFFF</color>
+
+    <color name="monet_dark_primary">#B4C5FF</color>
+    <color name="monet_dark_on_primary">#002E75</color>
+    <color name="monet_dark_primary_container">#33529E</color>
+    <color name="monet_dark_on_primary_container">#DCE3FF</color>
+    <color name="monet_dark_secondary">#CBC0FF</color>
+    <color name="monet_dark_on_secondary">#322159</color>
+    <color name="monet_dark_secondary_container">#4F3F7A</color>
+    <color name="monet_dark_on_secondary_container">#E7DEFF</color>
+    <color name="monet_dark_tertiary">#F2B8B1</color>
+    <color name="monet_dark_on_tertiary">#56201E</color>
+    <color name="monet_dark_tertiary_container">#7A3B38</color>
+    <color name="monet_dark_on_tertiary_container">#FFDAD4</color>
+    <color name="monet_dark_background">#13131C</color>
+    <color name="monet_dark_surface">#13131C</color>
+    <color name="monet_dark_surface_variant">#2E2C3D</color>
+    <color name="monet_dark_on_surface">#E5E1EC</color>
+    <color name="monet_dark_on_surface_variant">#C7C4D8</color>
+    <color name="monet_dark_outline">#918FA6</color>
+    <color name="monet_dark_error">#F2B8B5</color>
+    <color name="monet_dark_on_error">#601410</color>
+
+    <!-- 白色 + 天蓝色（莫奈取色关闭时使用） -->
+    <color name="sky_primary">#0288D1</color>
+    <color name="sky_on_primary">#FFFFFF</color>
+    <color name="sky_primary_container">#D3EBFB</color>
+    <color name="sky_on_primary_container">#00344F</color>
+    <color name="sky_secondary">#5C8CA8</color>
+    <color name="sky_on_secondary">#FFFFFF</color>
+    <color name="sky_secondary_container">#D7E8F4</color>
+    <color name="sky_on_secondary_container">#0E2A3A</color>
+    <color name="sky_tertiary">#6D8FB5</color>
+    <color name="sky_on_tertiary">#FFFFFF</color>
+    <color name="sky_tertiary_container">#D8E5F5</color>
+    <color name="sky_on_tertiary_container">#22374D</color>
+    <color name="sky_background">#FFFFFF</color>
+    <color name="sky_surface">#FFFFFF</color>
+    <color name="sky_surface_variant">#F2F6FA</color>
+    <color name="sky_on_surface">#16202A</color>
+    <color name="sky_on_surface_variant">#4A5866</color>
+    <color name="sky_outline">#C7D2DC</color>
+    <color name="sky_error">#B3261E</color>
+    <color name="sky_on_error">#FFFFFF</color>
+</resources>
+
