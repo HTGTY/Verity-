@@ -10,7 +10,6 @@ test/tmp/
 # Gradle 缓存
 .gradle/
 
-# 依赖与工具链：由 deps 里的 Gradle 工程下载，不入库
-toolchain/aars/
+# 工具链产物：r8 / apksig 由 Maven 解析，签名密钥本地生成，均不入库
 toolchain/*.jar
 toolchain/*.keystore

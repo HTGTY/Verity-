@@ -1,0 +1,234 @@
+// Verity 配置器的构建脚本。
+//
+// 本机没有 Android SDK，因此不使用 AGP：依赖由 Gradle 解析，
+// 资源与字节码处理直接调用 aapt2（Termux 自带）、d8 与自写的 SignApk。
+import java.io.ByteArrayOutputStream
+
+plugins {
+    id 'base'
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+ext {
+    minSdk = 24
+    targetSdk = 33
+    appSrc = file('app/src/main')
+    aapt2 = 'aapt2'
+    keystoreFile = file('toolchain/debug.keystore')
+}
+
+configurations {
+    androidSdk
+    aars
+    r8Tool
+    apksigTool
+}
+
+dependencies {
+    // 编译用的完整 android 类（Robolectric 的 API 33 实现），替代 SDK 里的 android.jar
+    androidSdk 'org.robolectric:android-all:13-robolectric-9030017'
+    aars 'com.google.android.material:material:1.9.0'
+    aars 'androidx.appcompat:appcompat:1.6.1'
+    aars 'androidx.constraintlayout:constraintlayout:2.1.4'
+    // d8 与签名工具：走 Google Maven，仓库里不放大体积的二进制
+    r8Tool 'com.android.tools:r8:8.5.35'
+    apksigTool 'com.android.tools.build:apksig:8.5.2'
+}
+
+def sdkJar = provider { configurations.androidSdk.singleFile }
+def dexHeap = '1280m'
+// 依赖里除了 AAR 还有纯 jar（如 androidx.annotation），它们不进 aar-classes，要单独带上
+def aarsJars = files({ configurations.aars.resolve().findAll { it.name.endsWith('.jar') } })
+
+/** 运行外部命令，参数在执行期才能确定，因此不走 Exec 任务。 */
+def runCmd(List cmd, File workDir = projectDir, boolean quiet = false) {
+    def proc = cmd.collect { it.toString() }.execute(null, workDir)
+    if (quiet) {
+        def sink = new ByteArrayOutputStream()
+        proc.consumeProcessOutput(sink, sink)
+    } else {
+        proc.consumeProcessOutput(System.out as OutputStream, System.err as OutputStream)
+    }
+    def code = proc.waitFor()
+    if (code != 0) {
+        throw new GradleException("命令执行失败（退出码 ${code}）：${cmd.join(' ')}")
+    }
+}
+
+// 1. 展开 AAR：资源留在 aar-res/<名称>/res，classes.jar 收进 aar-classes/<名称>.jar
+tasks.register('unpackAars') {
+    inputs.files(configurations.aars)
+    outputs.dir('build/aar-res')
+    outputs.dir('build/aar-classes')
+    doLast {
+        configurations.aars.each { File aar ->
+            def name = aar.name.replaceFirst(/\.aar$/, '')
+            copy {
+                from zipTree(aar)
+                into "build/aar-res/$name"
+            }
+            def classes = file("build/aar-res/$name/classes.jar")
+            if (classes.exists()) {
+                copy {
+                    from classes
+                    into 'build/aar-classes'
+                    rename { "${name}.jar" }
+                }
+            }
+        }
+    }
+}
+
+// 2. aapt2 compile：依赖资源与自身资源分别编译成 zip
+tasks.register('compileRes') {
+    dependsOn 'unpackAars'
+    inputs.dir("$appSrc/res")
+    inputs.dir('build/aar-res')
+    outputs.dir('build/compiled')
+    doLast {
+        file('build/aar-res').eachDir { File aarDir ->
+            def res = new File(aarDir, 'res')
+            if (res.directory) {
+                runCmd([aapt2, 'compile', '--dir', res.path,
+                        '-o', "build/compiled/dep-${aarDir.name}.zip"])
+            }
+        }
+        runCmd([aapt2, 'compile', '--dir', "$appSrc/res", '-o', 'build/compiled/app.zip'])
+    }
+}
+
+// 3. aapt2 link：生成 R.java 与仅含资源的 apk，--extra-packages 让依赖库各有自己的 R 类
+tasks.register('linkRes') {
+    dependsOn 'compileRes'
+    inputs.files(fileTree('build/compiled') { include '*.zip' })
+    inputs.file("$appSrc/AndroidManifest.xml")
+    outputs.dir('build/gen')
+    outputs.file('build/app-res.apk')
+    doLast {
+        def packages = []
+        fileTree('build/aar-res').matching { include '*/AndroidManifest.xml' }.each { File mf ->
+            def matcher = mf.text =~ /package="([^"]+)"/
+            if (matcher.find()) {
+                packages << matcher.group(1)
+            }
+        }
+        def args = [aapt2, 'link',
+                    '-I', sdkJar.get().path,
+                    '--auto-add-overlay',
+                    '--min-sdk-version', "$minSdk",
+                    '--target-sdk-version', "$targetSdk",
+                    '--manifest', "$appSrc/AndroidManifest.xml",
+                    '--java', 'build/gen',
+                    '--extra-packages', packages.join(':'),
+                    '-o', 'build/app-res.apk']
+        fileTree('build/compiled') { include '*.zip' }.files.sort().each { args += ['-R', it.path] }
+        runCmd(args)
+    }
+}
+
+// 4. 编译 Java：自身源码 + aapt2 生成的 R.java
+tasks.register('compileJava', JavaCompile) {
+    dependsOn 'linkRes'
+    source = files(fileTree("$appSrc/java") { include '**/*.java' },
+            fileTree('build/gen') { include '**/*.java' })
+    classpath = files(configurations.androidSdk,
+            fileTree('build/aar-classes') { include '*.jar' },
+            aarsJars)
+    destinationDirectory = file('build/classes')
+    sourceCompatibility = '8'
+    targetCompatibility = '8'
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-nowarn'
+}
+
+tasks.register('classesJar', Jar) {
+    from compileJava
+    archiveFileName = 'app-classes.jar'
+    destinationDirectory = file('build')
+}
+
+// 5. d8：自身与依赖的 class 一起转成 dex
+tasks.register('dex') {
+    dependsOn 'classesJar'
+    inputs.files(classesJar, fileTree('build/aar-classes') { include '*.jar' }, aarsJars)
+    outputs.dir('build/dex')
+    doLast {
+        def cmd = ['java', "-Xmx${dexHeap}", '-cp', configurations.r8Tool.asPath,
+                   'com.android.tools.r8.D8',
+                   '--lib', sdkJar.get().path,
+                   '--min-api', "$minSdk",
+                   '--output', 'build/dex',
+                   'build/app-classes.jar']
+        fileTree('build/aar-classes') { include '*.jar' }.files.sort().each { cmd << it.path }
+        aarsJars.each { cmd << it.path }
+        runCmd(cmd)
+    }
+}
+
+// 6. 把 dex 塞进 aapt2 产出的 apk
+tasks.register('packageApk') {
+    dependsOn 'dex'
+    inputs.file('build/app-res.apk')
+    inputs.files(fileTree('build/dex') { include '*.dex' })
+    outputs.file('build/app-unsigned.apk')
+    doLast {
+        copy {
+            from 'build/app-res.apk'
+            into 'build'
+            rename { 'app-unsigned.apk' }
+        }
+        def names = fileTree('build/dex') { include '*.dex' }.files.sort()*.name
+        runCmd(['zip', '-j', '-q', file('build/app-unsigned.apk').path] + names,
+                file('build/dex'))
+    }
+}
+
+tasks.register('compileSigner', JavaCompile) {
+    source = fileTree('toolchain') { include 'SignApk.java' }
+    classpath = files(configurations.apksigTool)
+    destinationDirectory = file('build/signer')
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
+    options.encoding = 'UTF-8'
+}
+
+// 7. 签名，产出可直接安装的 apk
+tasks.register('signApk', JavaExec) {
+    dependsOn 'packageApk', 'compileSigner'
+    inputs.file('build/app-unsigned.apk')
+    outputs.file('out/VerityTool.apk')
+    doFirst {
+        file('out').mkdirs()
+        if (!keystoreFile.exists()) {
+            keystoreFile.parentFile.mkdirs()
+            runCmd(['keytool', '-genkeypair', '-v',
+                    '-keystore', keystoreFile.path, '-alias', 'androiddebugkey',
+                    '-keyalg', 'RSA', '-keysize', '2048', '-validity', '10950',
+                    '-storepass', 'android', '-keypass', 'android',
+                    '-dname', 'CN=Verity Tool, OU=Debug, O=Verity, L=Unknown, ST=Unknown, C=CN'],
+                    projectDir, true)
+        }
+    }
+    classpath = files(configurations.apksigTool, 'build/signer')
+    mainClass = 'SignApk'
+    args keystoreFile.path, 'android', 'androiddebugkey', 'android',
+            file('build/app-unsigned.apk').path, file('out/VerityTool.apk').path, "$minSdk"
+}
+
+tasks.named('assemble') {
+    dependsOn 'signApk'
+    doLast {
+        def apk = file('out/VerityTool.apk')
+        println "==> 完成：${apk} (${apk.length()} bytes)"
+    }
+}
+
+tasks.named('clean') {
+    delete 'out'
+}
+
+defaultTasks 'assemble'
