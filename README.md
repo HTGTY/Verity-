@@ -2,7 +2,7 @@
 
 为 Minecraft **Verity** 模组准备的安卓配置工具。不用手动翻 `config` 目录、不用记住字段名，在手机上点几下就能把 AI 接口、模组行为和外观配置好，还能一键清除 AI 记忆来修复「幻觉」。
 
-> 适用于安装了 Verity 模组的 Minecraft Forge 1.20.1 / 1.21.1 整合包。
+> 适用于安装了 Verity 模组的 Minecraft Forge 1.20.1 / 1.21.1 游戏
 
 ## 功能
 
