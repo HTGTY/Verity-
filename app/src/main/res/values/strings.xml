@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Verity 配置器</string>
+    <string name="title_quick_config">快捷配置</string>
+    <string name="title_memory_fix">幻觉修复</string>
+    <string name="title_settings">设置</string>
+    <string name="title_display">显示设置</string>
+    <string name="title_about">关于</string>
+    <string name="title_path">配置设置</string>
+
+    <string name="main_subtitle">为 Verity 模组配置 AI 与修复记忆</string>
+    <string name="main_quick_title">快捷配置</string>
+    <string name="main_quick_desc">填写模型、接口地址与密钥</string>
+    <string name="main_fix_title">幻觉修复</string>
+    <string name="main_fix_desc">清除 AI 记忆以修复幻觉</string>
+    <string name="main_path_hint">游戏 versions 目录：%1$s</string>
+
+    <string name="choose_version">选择游戏版本</string>
+    <string name="version_available">已安装</string>
+    <string name="version_missing">未检测到</string>
+    <string name="version_missing_all">未检测到 1.20.1 与 1.21.1 的 Forge 版本，请前往启动器下载并安装</string>
+
+    <string name="config_format_modern">新版配置格式</string>
+    <string name="config_format_legacy">旧版配置格式</string>
+
+    <string name="hint_model">模型名称 Model</string>
+    <string name="hint_url">调用地址 URL</string>
+    <string name="hint_key">密钥 Key</string>
+
+    <string name="title_game_settings">模组设置</string>
+    <string name="title_appearance">外观</string>
+    <string name="day_count_label">变异天数</string>
+    <string name="day_count_hint">自定义天数（0~999）</string>
+    <string name="day_count_invalid">变异天数只能是 0~999 的整数</string>
+
+    <string name="toggle_can_crash">允许把玩家踢出游戏</string>
+    <string name="toggle_play_video">播放启动视频</string>
+    <string name="toggle_require_verity">每句话都要带上 Verity 才能对话</string>
+    <string name="toggle_use_native_tts">使用系统内置语音朗读</string>
+    <string name="toggle_true_darkness">极暗模式</string>
+    <string name="toggle_kill_wildlife">允许杀死动物</string>
+    <string name="toggle_kill_entities">允许杀死生物</string>
+    <string name="toggle_kill_villagers">允许杀死村民</string>
+    <string name="toggle_show_karma">显示心情条</string>
+
+    <string name="key_can_crash">canCrash</string>
+    <string name="key_play_video">playVideo</string>
+    <string name="key_require_verity">requireVerity</string>
+    <string name="key_use_native_tts">useNativeTts</string>
+    <string name="key_true_darkness">trueDarkness</string>
+    <string name="key_kill_wildlife">killWildlife</string>
+    <string name="key_kill_entities">killEntities</string>
+    <string name="key_kill_villagers">killVillagers</string>
+    <string name="key_show_karma">showKarma</string>
+
+    <string name="custom_name_hint">自定义名称 CustomName</string>
+    <string name="color_hue_label">颜色色相 ColorHue</string>
+    <string name="color_hue_value">当前色相：%1$d°</string>
+
+    <string name="title_ai_settings">AI 接口配置</string>
+    <string name="action_redetect">重新检测</string>
+    <string name="toast_version_not_installed">未检测到 %1$s-Forge，请前往启动器下载</string>
+    <string name="env_selected">已选择 %1$s-Forge，点击「下一步」检测配置文件</string>
+    <string name="toast_choose_version_first">请先选择游戏版本</string>
+    <string name="env_version_not_installed">未检测到 %1$s-Forge，请前往启动器下载</string>
+    <string name="env_no_config_dir">未找到 config 目录，请打开游戏启动后再来配置</string>
+    <string name="env_no_toml">未找到 verity-common.toml，请重新启动游戏后重试</string>
+    <string name="env_found">已找到配置文件（%1$s）：%2$s/verity-common.toml</string>
+    <string name="toast_detect_first">请先点击「下一步」检测配置文件</string>
+    <string name="title_done">配置完成</string>
+    <string name="config_done_legacy">已写入模型、接口、模组设置与外观（use_ollama 已开启）</string>
+    <string name="config_done_modern">已写入模型、接口、模组设置与外观</string>
+    <string name="done_restart">%1$s，请重新启动游戏使其生效。</string>
+    <string name="title_write_failed">写入失败</string>
+    <string name="write_failed">无法写入 verity-common.toml，请确认已授予「所有文件访问权限」。</string>
+    <string name="title_verify_failed">写入校验失败</string>
+    <string name="verify_failed">配置文件内容未生效，请重新尝试。</string>
+    <string name="verify_name_failed">自定义名称未生效，请重新尝试。</string>
+
+    <string name="no_saves_dir">未找到 saves 目录，请先启动一次游戏</string>
+    <string name="no_saves">该版本下没有存档</string>
+    <string name="title_no_fix">无需修复</string>
+    <string name="no_memory_in_save">存档「%1$s」中没有 verity_memory.json。</string>
+    <string name="title_warning">警告</string>
+    <string name="confirm_fix">修复 AI 幻觉需要删除 AI 记忆（verity_memory.json），是否确认？</string>
+    <string name="title_cleared">已清除记忆</string>
+    <string name="cleared_message">已删除 verity_memory.json，请重新启动游戏。</string>
+    <string name="delete_failed">删除失败，请确认已授予文件访问权限</string>
+
+
+    <string name="action_presets">预设</string>
+    <string name="action_confirm">确定</string>
+    <string name="action_next">下一步</string>
+    <string name="action_retry">重新检测</string>
+    <string name="action_back">返回</string>
+
+    <string name="settings_display_title">显示设置</string>
+    <string name="settings_display_desc">深色模式、莫奈取色与语言</string>
+    <string name="settings_about_title">关于</string>
+    <string name="settings_about_desc">作者信息与联系方式</string>
+    <string name="settings_path_title">配置设置</string>
+    <string name="settings_path_desc">修改游戏文件路径</string>
+
+    <string name="theme_mode_title">深色模式</string>
+    <string name="theme_follow">跟随系统</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="monet_title">莫奈取色</string>
+    <string name="monet_desc">开启后从壁纸取色；关闭后全局为白色 + 天蓝色</string>
+    <string name="language_title">语言 Language</string>
+    <string name="lang_zh">简体中文</string>
+    <string name="lang_en">English</string>
+
+    <string name="about_author_label">作者</string>
+    <string name="about_author_value">黄桃罐头吖386</string>
+    <string name="about_email_label">邮箱</string>
+    <string name="about_email_value">3975320058@qq.com</string>
+    <string name="about_qq_label">QQ</string>
+    <string name="about_qq_value">3975320058</string>
+    <string name="about_group_label">QQ 交流群</string>
+    <string name="about_group_value">1102998288</string>
+    <string name="about_version_label">版本</string>
+    <string name="about_copy_hint">点击邮箱、QQ 或群号可复制到剪贴板</string>
+    <string name="copied">已复制%1$s</string>
+
+    <string name="path_desc">填写启动器根目录（例如 /storage/emulated/0/FCL），应用会自动拼接 .minecraft/versions/</string>
+    <string name="path_hint">启动器根目录 Root</string>
+    <string name="path_preview">解析后的目录：%1$s</string>
+    <string name="path_default">恢复默认</string>
+    <string name="path_save">保存</string>
+    <string name="path_saved">已保存</string>
+    <string name="path_empty">路径不能为空</string>
+    <string name="path_invalid">路径不存在或不是目录，请检查后重试</string>
+    <string name="path_detected">检测到：%1$s</string>
+    <string name="path_none">路径可用，但未检测到任何 Forge 版本，请确认是否正确</string>
+
+    <string name="choose_save">选择存档</string>
+    <string name="save_modified">修改时间：%1$s</string>
+    <string name="save_no_memory">该存档中没有 verity_memory.json，无需修复</string>
+
+    <string name="perm_title">需要文件访问权限</string>
+    <string name="perm_message">本应用需要「所有文件访问权限」才能读写游戏目录。请在接下来的设置页面中开启。</string>
+    <string name="perm_go">前往开启</string>
+    <string name="perm_denied">未获得文件访问权限，无法继续</string>
+
+    <string name="version_label">v1.2</string>
+    <string name="backup_hint">操作前建议备份配置文件与存档</string>
+    <string name="author_notice">作者：黄桃罐头吖386，未经授权，严禁二次分发</string>
+
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+</resources>

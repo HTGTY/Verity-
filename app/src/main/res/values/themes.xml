@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.VerityTool" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/monet_light_primary</item>
+        <item name="colorOnPrimary">@color/monet_light_on_primary</item>
+        <item name="colorPrimaryContainer">@color/monet_light_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/monet_light_on_primary_container</item>
+        <item name="colorSecondary">@color/monet_light_secondary</item>
+        <item name="colorOnSecondary">@color/monet_light_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/monet_light_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/monet_light_on_secondary_container</item>
+        <item name="colorTertiary">@color/monet_light_tertiary</item>
+        <item name="colorOnTertiary">@color/monet_light_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/monet_light_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/monet_light_on_tertiary_container</item>
+        <item name="android:colorBackground">@color/monet_light_background</item>
+        <item name="colorSurface">@color/monet_light_surface</item>
+        <item name="colorSurfaceVariant">@color/monet_light_surface_variant</item>
+        <item name="colorOnSurface">@color/monet_light_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/monet_light_on_surface_variant</item>
+        <item name="colorOutline">@color/monet_light_outline</item>
+        <item name="colorError">@color/monet_light_error</item>
+        <item name="colorOnError">@color/monet_light_on_error</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- 扁平化：去掉默认阴影与深色遮罩 -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.VerityTool.Dialog</item>
+    </style>
+
+    <!-- 关闭莫奈取色后使用的白色 + 天蓝色主题，深色取值见 values-night/colors.xml -->
+    <style name="Theme.VerityTool.Sky" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/sky_primary</item>
+        <item name="colorOnPrimary">@color/sky_on_primary</item>
+        <item name="colorPrimaryContainer">@color/sky_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/sky_on_primary_container</item>
+        <item name="colorSecondary">@color/sky_secondary</item>
+        <item name="colorOnSecondary">@color/sky_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/sky_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/sky_on_secondary_container</item>
+        <item name="colorTertiary">@color/sky_tertiary</item>
+        <item name="colorOnTertiary">@color/sky_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/sky_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/sky_on_tertiary_container</item>
+        <item name="android:colorBackground">@color/sky_background</item>
+        <item name="colorSurface">@color/sky_surface</item>
+        <item name="colorSurfaceVariant">@color/sky_surface_variant</item>
+        <item name="colorOnSurface">@color/sky_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/sky_on_surface_variant</item>
+        <item name="colorOutline">@color/sky_outline</item>
+        <item name="colorError">@color/sky_error</item>
+        <item name="colorOnError">@color/sky_on_error</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.VerityTool.Dialog</item>
+    </style>
+
+    <style name="ThemeOverlay.VerityTool.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="dialogCornerRadius">28dp</item>
+    </style>
+
+    <style name="Widget.VerityTool.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardElevation">0dp</item>
+        <item name="cardCornerRadius">24dp</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+    </style>
+
+    <style name="Widget.VerityTool.Button" parent="Widget.Material3.Button">
+        <item name="android:minHeight">56dp</item>
+        <item name="cornerRadius">18dp</item>
+    </style>
+
+    <style name="Widget.VerityTool.Button.Chip" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">46dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="cornerRadius">14dp</item>
+    </style>
+
+    <style name="Widget.VerityTool.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">52dp</item>
+        <item name="cornerRadius">18dp</item>
+    </style>
+</resources>

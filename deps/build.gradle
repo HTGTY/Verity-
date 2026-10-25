@@ -1,0 +1,19 @@
+repositories {
+    google()
+    mavenCentral()
+}
+
+configurations {
+    deps
+}
+
+dependencies {
+    deps 'com.google.android.material:material:1.9.0'
+    deps 'androidx.appcompat:appcompat:1.6.1'
+    deps 'androidx.constraintlayout:constraintlayout:2.1.4'
+}
+
+tasks.register('copyDeps', Copy) {
+    from configurations.deps
+    into '../toolchain/aars'
+}

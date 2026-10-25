@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.VerityTool" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/monet_dark_primary</item>
+        <item name="colorOnPrimary">@color/monet_dark_on_primary</item>
+        <item name="colorPrimaryContainer">@color/monet_dark_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/monet_dark_on_primary_container</item>
+        <item name="colorSecondary">@color/monet_dark_secondary</item>
+        <item name="colorOnSecondary">@color/monet_dark_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/monet_dark_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/monet_dark_on_secondary_container</item>
+        <item name="colorTertiary">@color/monet_dark_tertiary</item>
+        <item name="colorOnTertiary">@color/monet_dark_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/monet_dark_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/monet_dark_on_tertiary_container</item>
+        <item name="android:colorBackground">@color/monet_dark_background</item>
+        <item name="colorSurface">@color/monet_dark_surface</item>
+        <item name="colorSurfaceVariant">@color/monet_dark_surface_variant</item>
+        <item name="colorOnSurface">@color/monet_dark_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/monet_dark_on_surface_variant</item>
+        <item name="colorOutline">@color/monet_dark_outline</item>
+        <item name="colorError">@color/monet_dark_error</item>
+        <item name="colorOnError">@color/monet_dark_on_error</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.VerityTool.Dialog</item>
+    </style>
+
+</resources>

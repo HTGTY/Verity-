@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Verity Tool</string>
+    <string name="title_quick_config">Quick Setup</string>
+    <string name="title_memory_fix">Memory Fix</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_display">Display</string>
+    <string name="title_about">About</string>
+    <string name="title_path">Configuration</string>
+
+    <string name="main_subtitle">Configure AI and repair memories for Verity</string>
+    <string name="main_quick_title">Quick Setup</string>
+    <string name="main_quick_desc">Fill in model, endpoint and API key</string>
+    <string name="main_fix_title">Memory Fix</string>
+    <string name="main_fix_desc">Clear AI memories to fix hallucinations</string>
+    <string name="main_path_hint">Minecraft versions folder: %1$s</string>
+
+    <string name="choose_version">Choose game version</string>
+    <string name="version_available">Installed</string>
+    <string name="version_missing">Not found</string>
+    <string name="version_missing_all">No Forge installation found for 1.20.1 or 1.21.1, please install one from the launcher</string>
+
+    <string name="config_format_modern">New config format</string>
+    <string name="config_format_legacy">Legacy config format</string>
+
+    <string name="hint_model">Model</string>
+    <string name="hint_url">Endpoint URL</string>
+    <string name="hint_key">API Key</string>
+
+    <string name="title_game_settings">Mod settings</string>
+    <string name="title_appearance">Appearance</string>
+    <string name="day_count_label">Days before Verity turns hostile</string>
+    <string name="day_count_hint">Custom days (0~999)</string>
+    <string name="day_count_invalid">Days must be an integer between 0 and 999</string>
+
+    <string name="toggle_can_crash">Kick you from the server</string>
+    <string name="toggle_play_video">Play the startup video</string>
+    <string name="toggle_require_verity">Require "Verity" in every sentence</string>
+    <string name="toggle_use_native_tts">Use the built-in text to speech</string>
+    <string name="toggle_true_darkness">Extreme darkness</string>
+    <string name="toggle_kill_wildlife">Kill wildlife</string>
+    <string name="toggle_kill_entities">Kill entities</string>
+    <string name="toggle_kill_villagers">Kill villagers</string>
+    <string name="toggle_show_karma">Show the karma bar</string>
+
+    <string name="key_can_crash">canCrash</string>
+    <string name="key_play_video">playVideo</string>
+    <string name="key_require_verity">requireVerity</string>
+    <string name="key_use_native_tts">useNativeTts</string>
+    <string name="key_true_darkness">trueDarkness</string>
+    <string name="key_kill_wildlife">killWildlife</string>
+    <string name="key_kill_entities">killEntities</string>
+    <string name="key_kill_villagers">killVillagers</string>
+    <string name="key_show_karma">showKarma</string>
+
+    <string name="custom_name_hint">Custom name</string>
+    <string name="color_hue_label">Color hue</string>
+    <string name="color_hue_value">Current hue: %1$d°</string>
+
+    <string name="title_ai_settings">AI endpoint</string>
+    <string name="action_redetect">Redetect</string>
+    <string name="toast_version_not_installed">%1$s-Forge not found, please install it from the launcher</string>
+    <string name="env_selected">%1$s-Forge selected, tap Next to detect the config file</string>
+    <string name="toast_choose_version_first">Choose a game version first</string>
+    <string name="env_version_not_installed">%1$s-Forge not found, please install it from the launcher</string>
+    <string name="env_no_config_dir">config folder not found, please start the game once first</string>
+    <string name="env_no_toml">verity-common.toml not found, please restart the game and retry</string>
+    <string name="env_found">Config file found (%1$s): %2$s/verity-common.toml</string>
+    <string name="toast_detect_first">Tap Next to detect the config file first</string>
+    <string name="title_done">Done</string>
+    <string name="config_done_legacy">Model, endpoint, mod settings and appearance saved (use_ollama enabled)</string>
+    <string name="config_done_modern">Model, endpoint, mod settings and appearance saved</string>
+    <string name="done_restart">%1$s Restart the game to apply it.</string>
+    <string name="title_write_failed">Write failed</string>
+    <string name="write_failed">Cannot write verity-common.toml, please check that "All files access" is granted.</string>
+    <string name="title_verify_failed">Verification failed</string>
+    <string name="verify_failed">The config file was not updated, please try again.</string>
+    <string name="verify_name_failed">The custom name was not updated, please try again.</string>
+
+    <string name="no_saves_dir">saves folder not found, please start the game once first</string>
+    <string name="no_saves">No world found for this version</string>
+    <string name="title_no_fix">Nothing to fix</string>
+    <string name="no_memory_in_save">World "%1$s" has no verity_memory.json.</string>
+    <string name="title_warning">Warning</string>
+    <string name="confirm_fix">Fixing hallucinations deletes the AI memory (verity_memory.json). Continue?</string>
+    <string name="title_cleared">Memory cleared</string>
+    <string name="cleared_message">verity_memory.json deleted, please restart the game.</string>
+    <string name="delete_failed">Deletion failed, please check that file access is granted</string>
+
+
+    <string name="action_presets">Presets</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_next">Next</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_back">Back</string>
+
+    <string name="settings_display_title">Display</string>
+    <string name="settings_display_desc">Dark mode, Monet colors and language</string>
+    <string name="settings_about_title">About</string>
+    <string name="settings_about_desc">Author and contact information</string>
+    <string name="settings_path_title">Configuration</string>
+    <string name="settings_path_desc">Change the game folder path</string>
+
+    <string name="theme_mode_title">Dark mode</string>
+    <string name="theme_follow">Follow system</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="monet_title">Monet colors</string>
+    <string name="monet_desc">When on, colors follow your wallpaper; when off, white and sky blue are used</string>
+    <string name="language_title">语言 Language</string>
+    <string name="lang_zh">简体中文</string>
+    <string name="lang_en">English</string>
+
+    <string name="about_author_label">Author</string>
+    <string name="about_author_value">黄桃罐头吖386</string>
+    <string name="about_email_label">Email</string>
+    <string name="about_email_value">3975320058@qq.com</string>
+    <string name="about_qq_label">QQ</string>
+    <string name="about_qq_value">3975320058</string>
+    <string name="about_group_label">QQ group</string>
+    <string name="about_group_value">1102998288</string>
+    <string name="about_version_label">Version</string>
+    <string name="about_copy_hint">Tap email, QQ or group number to copy</string>
+    <string name="copied">%1$s copied</string>
+
+    <string name="path_desc">Enter the launcher root folder (for example /storage/emulated/0/FCL); .minecraft/versions/ is appended automatically</string>
+    <string name="path_hint">Launcher root folder</string>
+    <string name="path_preview">Resolved folder: %1$s</string>
+    <string name="path_default">Reset</string>
+    <string name="path_save">Save</string>
+    <string name="path_saved">Saved</string>
+    <string name="path_empty">Path cannot be empty</string>
+    <string name="path_invalid">Path does not exist or is not a folder</string>
+    <string name="path_detected">Found: %1$s</string>
+    <string name="path_none">Path is valid but no Forge version was found, please double check it</string>
+
+    <string name="choose_save">Choose a world</string>
+    <string name="save_modified">Modified: %1$s</string>
+    <string name="save_no_memory">No verity_memory.json in this world, nothing to fix</string>
+
+    <string name="perm_title">File access required</string>
+    <string name="perm_message">This app needs "All files access" to read and write the game folder. Please enable it in the next settings screen.</string>
+    <string name="perm_go">Open settings</string>
+    <string name="perm_denied">File access denied, cannot continue</string>
+
+    <string name="version_label">v1.2</string>
+    <string name="backup_hint">Back up config files and worlds before making changes</string>
+    <string name="author_notice">Author: 黄桃罐头吖386. Redistribution without permission is prohibited</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+</resources>

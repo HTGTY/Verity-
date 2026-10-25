@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深灰底 + 浅天蓝（莫奈取色关闭且深色模式时） -->
+    <color name="sky_primary">#7FCBFF</color>
+    <color name="sky_on_primary">#00344F</color>
+    <color name="sky_primary_container">#0B4B6C</color>
+    <color name="sky_on_primary_container">#CDE9FF</color>
+    <color name="sky_secondary">#B3D3E8</color>
+    <color name="sky_on_secondary">#123141</color>
+    <color name="sky_secondary_container">#2C4657</color>
+    <color name="sky_on_secondary_container">#D3E9F7</color>
+    <color name="sky_tertiary">#B9D6F2</color>
+    <color name="sky_on_tertiary">#1B3A52</color>
+    <color name="sky_tertiary_container">#35516B</color>
+    <color name="sky_on_tertiary_container">#D6E7F8</color>
+    <color name="sky_background">#10181F</color>
+    <color name="sky_surface">#131B22</color>
+    <color name="sky_surface_variant">#212C36</color>
+    <color name="sky_on_surface">#E1E9F0</color>
+    <color name="sky_on_surface_variant">#C1CED9</color>
+    <color name="sky_outline">#8C9CAB</color>
+    <color name="sky_error">#F2B8B5</color>
+    <color name="sky_on_error">#601410</color>
+</resources>
