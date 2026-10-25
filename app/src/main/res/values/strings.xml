@@ -145,7 +145,7 @@
 
     <string name="version_label">v1.2</string>
     <string name="backup_hint">操作前建议备份配置文件与存档</string>
-    <string name="author_notice">作者：黄桃罐头吖386，未经授权，严禁二次分发</string>
+    <string name="author_notice">作者：黄桃罐头吖386 · 基于 MIT License 开源</string>
 
     <string name="ok">确定</string>
     <string name="cancel">取消</string>

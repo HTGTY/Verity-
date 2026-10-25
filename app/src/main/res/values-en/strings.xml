@@ -145,7 +145,7 @@
 
     <string name="version_label">v1.2</string>
     <string name="backup_hint">Back up config files and worlds before making changes</string>
-    <string name="author_notice">Author: 黄桃罐头吖386. Redistribution without permission is prohibited</string>
+    <string name="author_notice">Author: 黄桃罐头吖386 · Released under the MIT License</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
