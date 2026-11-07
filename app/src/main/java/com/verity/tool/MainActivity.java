@@ -46,7 +46,7 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        install.setOnClickListener(v -> new GameInstaller(this).start());
+        install.setOnClickListener(v -> new ModInstaller(this).start());
 
         animateEntrance(quick, 0);
         animateEntrance(fix, 70);

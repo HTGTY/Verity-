@@ -188,4 +188,49 @@ public final class GameFs {
         }
         return saf();
     }
+
+    /** mods 目录下的文件名列表（不含子目录）。 */
+    public static List<String> modFileNames(String version) {
+        List<String> names = new ArrayList<>();
+        if (direct()) {
+            File[] files = new File(McPaths.versionDir(version), "mods").listFiles();
+            if (files == null) {
+                return names;
+            }
+            for (File file : files) {
+                if (file.isFile()) {
+                    names.add(file.getName());
+                }
+            }
+        } else if (saf()) {
+            for (DocumentFile file : SafStore.children(SafStore.resolve(version + "/mods"))) {
+                String name = file.getName();
+                if (file.isFile() && name != null) {
+                    names.add(name);
+                }
+            }
+        }
+        return names;
+    }
+
+    /** mods 目录的可读路径，用于界面展示。 */
+    public static String modsPath(String version) {
+        if (direct()) {
+            return new File(McPaths.versionDir(version), "mods").getPath();
+        }
+        String base = sourceDesc();
+        return base.isEmpty() ? version + "/mods" : base + "/" + version + "/mods";
+    }
+
+    /** 该版本下是否已经有 mods 目录。 */
+    public static boolean modsExists(String version) {
+        if (direct()) {
+            return new File(McPaths.versionDir(version), "mods").isDirectory();
+        }
+        if (saf()) {
+            DocumentFile mods = SafStore.resolve(version + "/mods");
+            return mods != null && mods.isDirectory();
+        }
+        return false;
+    }
 }

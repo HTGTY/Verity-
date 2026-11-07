@@ -1,0 +1,32 @@
+（仅下载模组）
+三个模组
+
+Yet Another Config Lib (YACL)
+
+· Modrinth 项目 ID：1eAoo2KR，版本 ID：lALu7fvN（对应 3.4.2+1.20.1-forge）。
+· 下载直链：https://cdn.modrinth.com/data/1eAoo2KR/versions/lALu7fvN/YetAnotherConfigLib-3.4.2+1.20.1-forge.jar
+· 校验：Modrinth 页面未直接展示哈希，APP 可通过 https://api.modrinth.com/v2/version/lALu7fvN 动态获取 files[].hashes.sha1。CurseForge 上另有 3.6.5 for forge 1.20.1，但 3.4.2 是社区验证过的稳定版，可作为首选硬编码。
+
+GeckoLib
+
+· Modrinth 项目 ID：8BmcQJ2H，版本 ID：e72SjmmI（对应 4.7.1.2）。
+· 下载直链：https://cdn.modrinth.com/data/8BmcQJ2H/versions/e72SjmmI/geckolib-forge-1.20.1-4.7.1.2.jar
+· SHA1：c2b5d7ccf77f505996701ba477741d7e5cd034e1
+· SHA512：fb41b2cd47b46bf84d101e4d1ba78f04151b85a4767f32bc84c9629312ed41ce558cd5660ff50f435839a23c4bea04db6710d3e9f804843ab52090bce1cf7fbb
+
+Verity JE 6
+
+· Modrinth 项目 ID：on1Y0osD。CurseForge 正式版文件名为 verity-6.0.0.jar（245.0 MB，标记为 Release）。注意 CurseForge 文件页通常不直接暴露哈希，APP 需通过 CurseForge API（需 Key）用文件 ID 换取 downloadUrl 和 hashes。
+· 备选方案（Modrinth beta 版参考）：如果不想依赖 CurseForge API Key，Modrinth 上 6.0.0-beta.1（版本 ID CXsEzVwJ）有公开直链和哈希，文件名为 verity-6.jar，大小 254,898,104 字节：
+  · 直链：https://cdn.modrinth.com/data/on1Y0osD/versions/CXsEzVwJ/verity-6.jar
+  · SHA1：609c799d7350a657cf2193839224bd6c2f9971b2
+  · SHA512：25771d7476639e5669bea28d0beb503813ca304cfd6ddb080be3eb4186fbea34024f3a0e93bcaeb4cef4ecfb925420956a5b0e92f4a957c7ff7b3a4a22127b6e
+  · ⚠️ 注意：这是 beta 版，与 CurseForge 正式版 6.0.0 不是同一文件，哈希不可混用。如果用户坚持要“Verity JE 6 正式版”，建议走 CurseForge API 获取正式文件元数据。
+
+💡 给 APP 下载模块的实现提醒
+
+· YACL 和 GeckoLib：体积小（1 MB 左右），可以直接硬编码 Modrinth CDN 链接，下载后比对 SHA1/SHA512 即可。
+· Verity JE 6：245 MB 左右的大文件，务必实现 HTTP Range 断点续传、分块下载和超时重试。如果通过 CurseForge API 获取正式版链接，注意 downloadUrl 有时效性/重定向，OkHttp 需跟随重定向（默认已支持）。
+· 统一校验逻辑：抽象一个 HashType（SHA1 / SHA512 / MD5），Modrinth 优先用 SHA512（更安全），CurseForge 视返回字段而定。下载完成后立即校验，失败则删除重试。
+
+提示用户：下载游戏文件可以前往b站搜索“BV1Nx3t6JEmf”查看详细教程视频

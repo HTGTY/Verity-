@@ -164,7 +164,7 @@
     <string name="perm_go">前往开启</string>
     <string name="perm_denied">未获得文件访问权限，无法继续</string>
 
-    <string name="version_label">v1.5-exp</string>
+    <string name="version_label">v1.6</string>
     <string name="backup_hint">操作前建议备份配置文件与存档</string>
     <string name="author_notice">作者：黄桃罐头吖386 · 基于 MIT License 开源</string>
 
@@ -172,8 +172,8 @@
     <string name="cancel">取消</string>
 
     <!-- v1.3 -->
-    <string name="main_install_title">一键安装游戏</string>
-    <string name="main_install_desc">下载整合包到游戏目录，一键体验 Verity</string>
+    <string name="main_install_title">下载模组</string>
+    <string name="main_install_desc">下载 YACL、GeckoLib 与 Verity JE 6 到所选版本</string>
     <string name="settings_update_title">检查更新</string>
     <string name="settings_update_desc">检查 GitHub 发布页的新版本</string>
     <string name="about_repo_label">仓库地址</string>
@@ -181,31 +181,54 @@
     <string name="about_license_label">开源协议</string>
     <string name="about_license_value">MIT License</string>
 
-    <string name="install_title">安装游戏</string>
-    <string name="install_start">开始下载整合包……</string>
-    <string name="install_downloading">下载中 %1$d%%</string>
-    <string name="install_unzip">正在解压到游戏目录……</string>
-    <string name="install_done">Verity 整合包安装完成</string>
-    <string name="install_launch">请启动「%1$s」开始游戏</string>
-    <string name="install_error">安装失败：%1$s</string>
-    <string name="install_canceled">安装已取消</string>
-    <string name="install_saf_unsupported">SAF 授权模式下暂不支持一键安装，请先切换到可直接读写的目录</string>
-    <string name="install_choose">选择要安装的游戏版本</string>
-    <string name="install_version_label">%1$s Forge 整合包</string>
-    <string name="install_dir_exists">该版本目录已存在，继续安装将覆盖其中的模组与配置</string>
-    <string name="dl_title">正在下载整合包</string>
+    <string name="dl_title">下载模组</string>
     <string name="dl_log">日志</string>
     <string name="dl_stop">终止</string>
+    <string name="dl_stop_title">终止下载</string>
     <string name="dl_background">后台下载</string>
     <string name="dl_prepare">准备下载……</string>
-    <string name="dl_locating">正在定位资源包……</string>
-    <string name="dl_url">下载地址：%1$s</string>
-    <string name="dl_progress">已下载 %1$s / %2$s（%3$d%%）</string>
-    <string name="dl_progress_unknown">已下载 %1$s</string>
-    <string name="dl_unzip">正在解压到 %1$s ……</string>
-    <string name="dl_done">安装完成：%1$s</string>
+    <string name="dl_bili_hint">不会安装？前往 B 站搜索 BV1Nx3t6JEmf 查看教程</string>
+    <string name="dl_bili_failed">没有找到可用的浏览器</string>
+    <string name="dl_step_version">选择游戏版本</string>
+    <string name="dl_step_mods">选择要下载的模组</string>
+    <string name="dl_version_hint">共 %1$d 个 1.20.1 目录</string>
+    <string name="dl_no_version">没有检测到 1.20.1 的游戏版本，请先在启动器里安装</string>
+    <string name="dl_denied">无法读取 versions 目录，请检查权限或启动器路径</string>
+    <string name="dl_mods_exist">已有 mods 目录</string>
+    <string name="dl_mods_new">下载时自动创建 mods 目录</string>
+    <string name="dl_selected">已选择</string>
+    <string name="dl_mod_meta">版本 %1$s</string>
+    <string name="dl_mod_meta_size">版本 %1$s · %2$s</string>
+    <string name="dl_start">开始下载</string>
+    <string name="dl_choose_version">请先选择游戏版本</string>
+    <string name="dl_choose_mod">请至少选择一个模组</string>
+    <string name="dl_conflict_title">检测到旧版 Verity</string>
+    <string name="dl_conflict_msg">mods 目录中还有：
+%1$s
+
+多个版本同时加载可能导致游戏启动失败，建议先移除旧文件。</string>
+    <string name="dl_conflict_continue">仍然继续</string>
+    <string name="dl_target">目标目录：%1$s</string>
+    <string name="dl_prepare_mod">准备下载 %1$s</string>
+    <string name="dl_start_mod">开始下载 %1$s %2$s</string>
+    <string name="dl_skip_same">%1$s 已存在且校验一致，跳过</string>
+    <string name="dl_hash_ok">%1$s 校验通过</string>
+    <string name="dl_hash_unavailable">无法获取 %1$s 的校验值，跳过校验</string>
+    <string name="dl_overall">%1$d/%2$d · %3$s</string>
+    <string name="dl_mod_progress">%1$s %2$d%% · %3$s / %4$s</string>
+    <string name="dl_mod_progress_unknown">%1$s %2$s</string>
+    <string name="dl_percent">总进度 %1$d%%</string>
+    <string name="dl_mod_failed">%1$s 下载失败：%2$s</string>
+    <string name="dl_write_failed">%1$s 写入 mods 目录失败</string>
+    <string name="dl_mods_failed">无法创建 mods 目录</string>
+    <string name="dl_saf_failed">无法访问授权目录，请重新授权</string>
+    <string name="dl_done_title">下载完成</string>
+    <string name="dl_done_msg">已处理 %1$d 个模组，跳过 %2$d 个已是最新的文件。</string>
+    <string name="dl_done_restart">请重启游戏使模组生效。</string>
+    <string name="dl_done_log">完成：%1$s</string>
     <string name="dl_failed">失败：%1$s</string>
-    <string name="dl_stopped">已终止下载</string>
+    <string name="dl_failed_title">下载失败</string>
+    <string name="dl_canceled_hint">已终止，断点已保留，下次可继续下载</string>
     <string name="dl_stopping">正在终止……</string>
 
     <string name="choose_game_dir">选择游戏目录</string>

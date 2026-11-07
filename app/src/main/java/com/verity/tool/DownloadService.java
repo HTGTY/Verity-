@@ -4,43 +4,47 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
+import android.os.Handler;
 import android.os.Looper;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
+import com.verity.tool.util.GameFs;
+import com.verity.tool.util.HashUtil;
 import com.verity.tool.util.McPaths;
-import com.verity.tool.util.NetUtil;
+import com.verity.tool.util.ModDownloader;
+import com.verity.tool.util.ModSpec;
+import com.verity.tool.util.ModrinthApi;
 import com.verity.tool.util.Notify;
-import com.verity.tool.util.ZipUtil;
+import com.verity.tool.util.SafStore;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 前台服务下载整合包并解压。
- * 页面只订阅进度，离开页面（转后台）也不会中断。
+ * 前台服务依次下载选中的模组 jar。
+ * 直连模式把 .part 放在 mods 目录里直接续传；
+ * SAF 模式先下到应用缓存，校验通过后再写入授权目录。
  */
 public class DownloadService extends Service {
 
     public static final String ACTION_START = "com.verity.tool.DOWNLOAD_START";
     public static final String EXTRA_VERSION = "version";
-    /** 资源包直链，固定版本，不再走 API 查询。 */
-    private static final String RESOURCE_URL =
-            "https://github.com/HTGTY/Verity-/releases/download/resource-package-v1/resource.zip";
-    private static final int NOTIF_ID = 201;
-    private static final String CHANNEL = "verity_download";
+    public static final String EXTRA_MODS = "mods";
+
+    private static final int NOTIF_ID = 202;
 
     public interface Listener {
         void onLog(String line);
 
-        void onProgress(int done, int total);
+        void onProgress(int percent, String text);
 
-        void onDone(String dirName);
+        void onDone(String message);
 
         void onFailed(String message);
     }
@@ -54,20 +58,23 @@ public class DownloadService extends Service {
     private final IBinder binder = new LocalBinder();
     private final Handler main = new Handler(Looper.getMainLooper());
     private final List<Listener> listeners = new ArrayList<>();
+    private final List<String> logLines = new ArrayList<>();
 
     private volatile boolean canceled;
     private volatile boolean running;
+
     private String version;
-    private final List<String> logLines = new ArrayList<>();
-    private int done;
-    private int total;
-    private String resultDir;
+    private String[] modKeys;
+    private int percent;
+    private String progressText = "";
+    private String result;
     private String failure;
 
-    public static void start(Context ctx, String version) {
+    public static void start(Context ctx, String version, String[] modKeys) {
         Intent i = new Intent(ctx, DownloadService.class)
                 .setAction(ACTION_START)
-                .putExtra(EXTRA_VERSION, version);
+                .putExtra(EXTRA_VERSION, version)
+                .putExtra(EXTRA_MODS, modKeys);
         ContextCompat.startForegroundService(ctx, i);
     }
 
@@ -80,10 +87,12 @@ public class DownloadService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_START.equals(intent.getAction())) {
             String v = intent.getStringExtra(EXTRA_VERSION);
-            if (v != null && !running) {
+            String[] keys = intent.getStringArrayExtra(EXTRA_MODS);
+            if (v != null && keys != null && keys.length > 0 && !running) {
                 version = v;
+                modKeys = keys;
                 beginForeground();
-                work();
+                new Thread(this::work).start();
             }
         }
         return START_NOT_STICKY;
@@ -103,15 +112,14 @@ public class DownloadService extends Service {
         if (!listeners.contains(l)) {
             listeners.add(l);
         }
-        // 补发当前状态，避免旋转屏幕或重新进入丢失日志
         for (String line : new ArrayList<>(logLines)) {
             l.onLog(line);
         }
-        if (total > 0) {
-            l.onProgress(done, total);
+        if (!progressText.isEmpty()) {
+            l.onProgress(percent, progressText);
         }
-        if (resultDir != null) {
-            l.onDone(resultDir);
+        if (result != null) {
+            l.onDone(result);
         } else if (failure != null) {
             l.onFailed(failure);
         }
@@ -125,7 +133,7 @@ public class DownloadService extends Service {
         return running;
     }
 
-    /** 用户点「终止」：标记后由下载循环尽快退出并清理临时文件。 */
+    /** 用户点「终止」：保留 .part，下次可继续。 */
     public void cancel() {
         if (!running) {
             return;
@@ -137,86 +145,184 @@ public class DownloadService extends Service {
     private void work() {
         running = true;
         canceled = false;
-        resultDir = null;
+        result = null;
         failure = null;
-        File cache = null;
-        try {
-            File root = McPaths.rootDir();
-            // version 已是目录名（如 1.20.1-Forge-Verity）
-            File versionDir = new File(root, version);
-            cache = new File(getCacheDir(),
-                    "Download/resource-" + System.currentTimeMillis() + ".zip");
+        percent = 0;
+        progressText = "";
 
-            log(getString(R.string.dl_url, RESOURCE_URL));
-
-            final File target = cache;
-            NetUtil.download(RESOURCE_URL, target, new NetUtil.Progress() {
-                @Override
-                public void onProgress(int downloaded, int t) {
-                    if (canceled) {
-                        return;
-                    }
-                    done = downloaded;
-                    total = t;
-                    int pct = t > 0 ? (int) (downloaded * 100.0 / t) : 0;
-                    String text = t > 0
-                            ? getString(R.string.dl_progress, fmt(downloaded), fmt(t), pct)
-                            : getString(R.string.dl_progress_unknown, fmt(downloaded));
-                    Notify.updateForeground(DownloadService.this, NOTIF_ID,
-                            getString(R.string.dl_title), text, downloaded, t);
-                    main.post(() -> {
-                        for (Listener l : new ArrayList<>(listeners)) {
-                            l.onProgress(downloaded, t);
-                        }
-                    });
-                }
-
-                @Override
-                public void onSuccess(File file) {
-                    if (canceled) {
-                        file.delete();
-                        finishCancel();
-                        return;
-                    }
-                    log(getString(R.string.dl_unzip, versionDir.getName()));
-                    main.post(() -> {
-                        Notify.updateForeground(DownloadService.this, NOTIF_ID,
-                                getString(R.string.dl_title), getString(R.string.dl_unzip, versionDir.getName()), 0, 0);
-                        for (Listener l : new ArrayList<>(listeners)) {
-                            l.onLog(getString(R.string.dl_unzip, versionDir.getName()));
-                        }
-                    });
-                    new Thread(() -> {
-                        try {
-                            ZipUtil.unzip(file, versionDir);
-                            file.delete();
-                            finishOk(versionDir.getName());
-                        } catch (Exception e) {
-                            finishFail(String.valueOf(e.getMessage()));
-                        }
-                    }).start();
-                }
-
-                @Override
-                public void onError(String message) {
-                    finishFail(message);
-                }
-            });
-        } catch (Exception e) {
-            if (cache != null) {
-                cache.delete();
+        List<ModSpec> specs = new ArrayList<>();
+        for (String key : modKeys) {
+            ModSpec spec = ModSpec.of(key);
+            if (spec != null) {
+                specs.add(spec);
             }
-            finishFail(String.valueOf(e.getMessage()));
         }
+        if (specs.isEmpty()) {
+            finishFail(getString(R.string.dl_choose_mod));
+            return;
+        }
+
+        boolean saf = !GameFs.direct();
+        File directMods = null;
+        DocumentFile safMods = null;
+        if (saf) {
+            safMods = SafStore.ensureDir(version + "/mods");
+            if (safMods == null) {
+                finishFail(getString(R.string.dl_saf_failed));
+                return;
+            }
+        } else {
+            directMods = new File(McPaths.versionDir(version), "mods");
+            if (!directMods.isDirectory() && !directMods.mkdirs()) {
+                finishFail(getString(R.string.dl_mods_failed));
+                return;
+            }
+        }
+
+        log(getString(R.string.dl_target, GameFs.modsPath(version)));
+        int installed = 0;
+        int skipped = 0;
+        try {
+            for (int i = 0; i < specs.size(); i++) {
+                if (canceled) {
+                    finishCancel();
+                    return;
+                }
+                ModSpec spec = specs.get(i);
+                publish(i, specs.size(), spec, getString(R.string.dl_prepare_mod, spec.name));
+
+                String sha1 = spec.sha1;
+                if (sha1 == null && spec.hashVersionId != null) {
+                    try {
+                        sha1 = ModrinthApi.sha1(spec.hashVersionId);
+                    } catch (IOException e) {
+                        log(getString(R.string.dl_hash_unavailable, spec.name));
+                    }
+                }
+                String sha512 = spec.sha512;
+
+                File directTarget = directMods == null ? null : new File(directMods, spec.fileName);
+                DocumentFile safTarget = safMods == null ? null : SafStore.child(safMods, spec.fileName);
+
+                if (alreadyOk(directTarget, safTarget, sha1)) {
+                    log(getString(R.string.dl_skip_same, spec.fileName));
+                    skipped++;
+                    publish(i + 1, specs.size(), spec, getString(R.string.dl_skip_same, spec.fileName));
+                    continue;
+                }
+
+                // 校验不一致的旧文件先删掉，避免占位
+                if (directTarget != null && directTarget.isFile()) {
+                    directTarget.delete();
+                }
+                if (safTarget != null && safTarget.isFile()) {
+                    SafStore.delete(safTarget);
+                }
+
+                File part = directMods != null
+                        ? new File(directMods, spec.fileName + ".part")
+                        : new File(new File(getCacheDir(), "Download/mods"), spec.fileName + ".part");
+
+                log(getString(R.string.dl_start_mod, spec.name, spec.version));
+                final int index = i;
+                final int count = specs.size();
+                ModDownloader.Result res = ModDownloader.fetch(spec, part, sha1, sha512,
+                        (done, total) -> publishBytes(index, count, spec, done, total),
+                        () -> canceled);
+
+                if (res.canceled) {
+                    finishCancel();
+                    return;
+                }
+                if (!res.ok) {
+                    part.delete();
+                    finishFail(getString(R.string.dl_mod_failed, spec.name, res.error));
+                    return;
+                }
+
+                if (directTarget != null) {
+                    if (!part.renameTo(directTarget)) {
+                        part.delete();
+                        finishFail(getString(R.string.dl_write_failed, spec.name));
+                        return;
+                    }
+                } else {
+                    DocumentFile doc = SafStore.ensureFile(safMods, spec.fileName);
+                    if (doc == null || !SafStore.writeFile(doc, part)) {
+                        part.delete();
+                        finishFail(getString(R.string.dl_write_failed, spec.name));
+                        return;
+                    }
+                    part.delete();
+                }
+
+                installed++;
+                log(getString(R.string.dl_hash_ok, spec.fileName));
+                publish(i + 1, count, spec, getString(R.string.dl_hash_ok, spec.fileName));
+            }
+        } catch (Exception e) {
+            finishFail(String.valueOf(e.getMessage()));
+            return;
+        }
+
+        finishOk(getString(R.string.dl_done_msg, installed, skipped));
     }
 
-    private void finishOk(String dirName) {
-        running = false;
-        resultDir = dirName;
-        log(getString(R.string.dl_done, dirName));
+    /** 目标已存在且摘要一致才算可跳过。 */
+    private boolean alreadyOk(File directTarget, DocumentFile safTarget, String sha1) {
+        if (sha1 == null || sha1.isEmpty()) {
+            return false;
+        }
+        String local;
+        if (directTarget != null) {
+            if (!directTarget.isFile()) {
+                return false;
+            }
+            local = HashUtil.sha1(directTarget);
+        } else {
+            if (safTarget == null || !safTarget.isFile()) {
+                return false;
+            }
+            local = SafStore.sha1(safTarget);
+        }
+        return sha1.equalsIgnoreCase(local);
+    }
+
+    private void publish(int finished, int count, ModSpec spec, String text) {
+        int value = count <= 0 ? 0 : (int) (finished * 100L / count);
+        publishProgress(value, getString(R.string.dl_overall, finished, count, text));
+    }
+
+    private void publishBytes(int index, int count, ModSpec spec, long done, long total) {
+        int filePct = total > 0 ? (int) (done * 100L / total) : 0;
+        int value = count <= 0 ? 0
+                : (int) ((index * 100L + filePct) / count);
+        String text = total > 0
+                ? getString(R.string.dl_mod_progress, spec.name, filePct, fmt(done), fmt(total))
+                : getString(R.string.dl_mod_progress_unknown, spec.name, fmt(done));
+        publishProgress(value, text);
+    }
+
+    private void publishProgress(int value, String text) {
+        percent = Math.max(0, Math.min(100, value));
+        progressText = text;
+        Notify.updateForeground(this, NOTIF_ID, getString(R.string.dl_title), text, percent, 100);
         main.post(() -> {
             for (Listener l : new ArrayList<>(listeners)) {
-                l.onDone(dirName);
+                l.onProgress(percent, text);
+            }
+        });
+    }
+
+    private void finishOk(String message) {
+        running = false;
+        result = message;
+        percent = 100;
+        progressText = getString(R.string.dl_done_title);
+        log(getString(R.string.dl_done_log, message));
+        main.post(() -> {
+            for (Listener l : new ArrayList<>(listeners)) {
+                l.onDone(message);
             }
         });
         Notify.cancel(this, NOTIF_ID);
@@ -240,12 +346,11 @@ public class DownloadService extends Service {
 
     private void finishCancel() {
         running = false;
-        failure = null;
-        resultDir = null;
-        log(getString(R.string.dl_stopped));
+        failure = getString(R.string.dl_canceled_hint);
+        log(getString(R.string.dl_canceled_hint));
         main.post(() -> {
             for (Listener l : new ArrayList<>(listeners)) {
-                l.onFailed(getString(R.string.dl_stopped));
+                l.onFailed(getString(R.string.dl_canceled_hint));
             }
         });
         Notify.cancel(this, NOTIF_ID);

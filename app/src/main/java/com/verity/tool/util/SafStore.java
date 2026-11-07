@@ -240,6 +240,109 @@ public final class SafStore {
         }
     }
 
+    /** 逐级创建目录，返回最终目录；失败返回 null。 */
+    public static DocumentFile ensureDir(String relative) {
+        DocumentFile current = root();
+        if (current == null) {
+            return null;
+        }
+        for (String part : relative.split("/")) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            DocumentFile next = child(current, part);
+            if (next == null || !next.isDirectory()) {
+                try {
+                    next = current.createDirectory(part);
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+            if (next == null) {
+                return null;
+            }
+            current = next;
+        }
+        return current;
+    }
+
+    /** 在目录下取同名文件，不存在则新建。 */
+    public static DocumentFile ensureFile(DocumentFile dir, String name) {
+        if (dir == null) {
+            return null;
+        }
+        DocumentFile file = child(dir, name);
+        if (file != null && file.isFile()) {
+            return file;
+        }
+        try {
+            return dir.createFile("application/java-archive", name);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** 把本地文件写入 SAF 文档（覆盖）。 */
+    public static boolean writeFile(DocumentFile target, java.io.File source) {
+        Context context = Prefs.context();
+        if (context == null || target == null || source == null || !source.isFile()) {
+            return false;
+        }
+        java.io.InputStream in = null;
+        java.io.OutputStream out = null;
+        try {
+            in = new java.io.FileInputStream(source);
+            out = context.getContentResolver().openOutputStream(target.getUri(), "wt");
+            if (out == null) {
+                return false;
+            }
+            byte[] buf = new byte[64 * 1024];
+            int read;
+            while ((read = in.read(buf)) != -1) {
+                out.write(buf, 0, read);
+            }
+            out.flush();
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception ignored) {
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    /** 计算 SAF 文件的 SHA1，失败返回 null。 */
+    public static String sha1(DocumentFile file) {
+        Context context = Prefs.context();
+        if (context == null || file == null || !file.isFile()) {
+            return null;
+        }
+        java.io.InputStream in = null;
+        try {
+            in = context.getContentResolver().openInputStream(file.getUri());
+            return in == null ? null : HashUtil.digest(in, "SHA-1");
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
     /** 授权目录的可读描述，优先展示真实路径。 */
     public static String describe() {
         String path = Prefs.safTreePath();

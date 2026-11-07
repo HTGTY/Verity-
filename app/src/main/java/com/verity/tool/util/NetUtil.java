@@ -11,6 +11,8 @@ import java.net.URL;
 /** 阻塞式 HTTP GET + 流式下载（用于 GitHub release 与模组包）。 */
 public final class NetUtil {
 
+    public static final String USER_AGENT = "VerityTool/1.6 (Android; +https://github.com/HTGTY/Verity-)";
+
     private NetUtil() {
     }
 
@@ -30,6 +32,7 @@ public final class NetUtil {
         conn.setRequestMethod("GET");
         try {
             conn.setRequestProperty("Accept", "application/vnd.github+json");
+            conn.setRequestProperty("User-Agent", USER_AGENT);
             int code = conn.getResponseCode();
             if (code >= 300) {
                 throw new IOException("HTTP " + code);

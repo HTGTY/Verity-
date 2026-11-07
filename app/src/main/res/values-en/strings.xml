@@ -164,7 +164,7 @@
     <string name="perm_go">Open settings</string>
     <string name="perm_denied">File access denied, cannot continue</string>
 
-    <string name="version_label">v1.5-exp</string>
+    <string name="version_label">v1.6</string>
     <string name="backup_hint">Back up config files and worlds before making changes</string>
     <string name="author_notice">Author: 黄桃罐头吖386 · Released under the MIT License</string>
 
@@ -172,8 +172,8 @@
     <string name="cancel">Cancel</string>
 
     <!-- v1.3 -->
-    <string name="main_install_title">Install Game</string>
-    <string name="main_install_desc">Download the modpack into the game folder</string>
+    <string name="main_install_title">Download Mods</string>
+    <string name="main_install_desc">Download YACL, GeckoLib and Verity JE 6 into a chosen version</string>
     <string name="settings_update_title">Check for updates</string>
     <string name="settings_update_desc">Check the GitHub releases for new versions</string>
     <string name="about_repo_label">Repository</string>
@@ -181,31 +181,54 @@
     <string name="about_license_label">License</string>
     <string name="about_license_value">MIT License</string>
 
-    <string name="install_title">Install Game</string>
-    <string name="install_start">Downloading the modpack…</string>
-    <string name="install_downloading">Downloading %1$d%%</string>
-    <string name="install_unzip">Extracting into the game folder…</string>
-    <string name="install_done">Verity modpack installed</string>
-    <string name="install_launch">Launch “%1$s” to start the game</string>
-    <string name="install_error">Install failed: %1$s</string>
-    <string name="install_canceled">Install canceled</string>
-    <string name="install_saf_unsupported">One-tap install is not supported in SAF mode, switch to a directly readable folder first</string>
-    <string name="install_choose">Choose the game version to install</string>
-    <string name="install_version_label">%1$s Forge modpack</string>
-    <string name="install_dir_exists">This version folder already exists; installing will overwrite its mods and configs</string>
-    <string name="dl_title">Downloading modpack</string>
+    <string name="dl_title">Download mods</string>
     <string name="dl_log">Log</string>
     <string name="dl_stop">Stop</string>
+    <string name="dl_stop_title">Stop download</string>
     <string name="dl_background">Download in background</string>
     <string name="dl_prepare">Preparing…</string>
-    <string name="dl_locating">Locating the resource package…</string>
-    <string name="dl_url">URL: %1$s</string>
-    <string name="dl_progress">%1$s / %2$s (%3$d%%)</string>
-    <string name="dl_progress_unknown">%1$s downloaded</string>
-    <string name="dl_unzip">Extracting into %1$s …</string>
-    <string name="dl_done">Installed: %1$s</string>
+    <string name="dl_bili_hint">Need help? Search BV1Nx3t6JEmf on Bilibili for a tutorial</string>
+    <string name="dl_bili_failed">No browser available</string>
+    <string name="dl_step_version">Choose a game version</string>
+    <string name="dl_step_mods">Choose mods to download</string>
+    <string name="dl_version_hint">%1$d folder(s) for 1.20.1</string>
+    <string name="dl_no_version">No 1.20.1 game version found, install one in the launcher first</string>
+    <string name="dl_denied">Cannot read the versions folder, check permissions or the launcher path</string>
+    <string name="dl_mods_exist">mods folder exists</string>
+    <string name="dl_mods_new">mods folder will be created</string>
+    <string name="dl_selected">Selected</string>
+    <string name="dl_mod_meta">Version %1$s</string>
+    <string name="dl_mod_meta_size">Version %1$s · %2$s</string>
+    <string name="dl_start">Start download</string>
+    <string name="dl_choose_version">Choose a game version first</string>
+    <string name="dl_choose_mod">Select at least one mod</string>
+    <string name="dl_conflict_title">Older Verity found</string>
+    <string name="dl_conflict_msg">The mods folder already contains:
+%1$s
+
+Loading multiple versions may prevent the game from starting. Remove the old file first.</string>
+    <string name="dl_conflict_continue">Continue anyway</string>
+    <string name="dl_target">Target folder: %1$s</string>
+    <string name="dl_prepare_mod">Preparing %1$s</string>
+    <string name="dl_start_mod">Downloading %1$s %2$s</string>
+    <string name="dl_skip_same">%1$s exists and matches, skipped</string>
+    <string name="dl_hash_ok">%1$s verified</string>
+    <string name="dl_hash_unavailable">Cannot fetch the checksum for %1$s, skipping verification</string>
+    <string name="dl_overall">%1$d/%2$d · %3$s</string>
+    <string name="dl_mod_progress">%1$s %2$d%% · %3$s / %4$s</string>
+    <string name="dl_mod_progress_unknown">%1$s %2$s</string>
+    <string name="dl_percent">Overall %1$d%%</string>
+    <string name="dl_mod_failed">%1$s download failed: %2$s</string>
+    <string name="dl_write_failed">Failed to write %1$s into the mods folder</string>
+    <string name="dl_mods_failed">Cannot create the mods folder</string>
+    <string name="dl_saf_failed">Cannot access the authorized folder, please grant access again</string>
+    <string name="dl_done_title">Download complete</string>
+    <string name="dl_done_msg">Processed %1$d mod(s), skipped %2$d already up to date.</string>
+    <string name="dl_done_restart">Restart the game to apply the mods.</string>
+    <string name="dl_done_log">Done: %1$s</string>
     <string name="dl_failed">Failed: %1$s</string>
-    <string name="dl_stopped">Download stopped</string>
+    <string name="dl_failed_title">Download failed</string>
+    <string name="dl_canceled_hint">Stopped, partial file kept for resuming next time</string>
     <string name="dl_stopping">Stopping…</string>
 
     <string name="choose_game_dir">Choose a game folder</string>
