@@ -50,7 +50,16 @@ public final class TomlEditor {
 
     /** 依据文件中的段名判断配置格式；没有 GeneralSettings 段的即为旧版。 */
     public static Format detectFormat(File file) {
-        for (String line : readLines(file)) {
+        return detectFormat(readLines(file));
+    }
+
+    /** 依据文本内容判断配置格式。 */
+    public static Format detectFormat(String text) {
+        return detectFormat(split(text));
+    }
+
+    public static Format detectFormat(List<String> lines) {
+        for (String line : lines) {
             if (line.trim().startsWith("[GeneralSettings")) {
                 return Format.MODERN;
             }
@@ -60,26 +69,36 @@ public final class TomlEditor {
 
     /** 按格式读取当前 AI 配置。 */
     public static AiConfig readAi(File file, Format format) {
+        return readAi(readLines(file), format);
+    }
+
+    public static AiConfig readAi(List<String> lines, Format format) {
         String section = aiSection(format);
         if (format == Format.LEGACY) {
-            return new AiConfig(readValue(file, format, section, "ollama_ai_model"),
-                    readValue(file, format, section, "ollama_url"),
-                    readValue(file, format, section, "apiKey"));
+            return new AiConfig(readValue(lines, section, "ollama_ai_model"),
+                    readValue(lines, section, "ollama_url"),
+                    readValue(lines, section, "apiKey"));
         }
-        return new AiConfig(readValue(file, format, section, "aiModel"),
-                readValue(file, format, section, "aiEndpoint"),
-                readValue(file, format, section, "apiKey"));
+        return new AiConfig(readValue(lines, section, "aiModel"),
+                readValue(lines, section, "aiEndpoint"),
+                readValue(lines, section, "apiKey"));
     }
 
     /** 模型 / 地址 / 密钥：旧版走 ollama 通道，新版走 OPENAI 兼容接口。 */
     public static boolean writeAi(File file, Format format, String model, String url, String key) {
-        List<String> lines = readLines(file);
+        List<String> lines = writeAi(readLines(file), format, model, url, key);
+        return lines != null && writeLines(file, lines);
+    }
+
+    /** 返回修改后的行；找不到 AI 段时返回 null。 */
+    public static List<String> writeAi(List<String> lines, Format format,
+                                       String model, String url, String key) {
         if (lines.isEmpty()) {
-            return false;
+            return null;
         }
         int[] range = sectionRange(lines, aiSection(format), false);
         if (range == null) {
-            return false;
+            return null;
         }
         String indent = detectIndent(lines, range[0], range[1]);
         int end = range[1];
@@ -95,7 +114,7 @@ public final class TomlEditor {
             end = setValue(lines, range[0], end, indent, "useCustomAiModel", "true");
             end = setValue(lines, range[0], end, indent, "aiProvider", quote("OPENAI"));
         }
-        return writeLines(file, lines);
+        return lines;
     }
 
     /** 模组主设置所在的段：旧版在文件顶部，新版在 [GeneralSettings]。 */
@@ -116,27 +135,37 @@ public final class TomlEditor {
     /** 批量写入原始值（true / false / 数字 / 已加引号的字符串）。 */
     public static boolean writeValues(File file, Format format, String section,
                                       Map<String, String> values) {
-        List<String> lines = readLines(file);
+        List<String> lines = writeValues(readLines(file), section, values);
+        return lines != null && writeLines(file, lines);
+    }
+
+    /** 返回修改后的行；段不存在时返回 null。 */
+    public static List<String> writeValues(List<String> lines, String section,
+                                           Map<String, String> values) {
         if (lines.isEmpty() || values.isEmpty()) {
-            return false;
+            return null;
         }
         int[] range = sectionRange(lines, section, false);
         if (range == null) {
-            return false;
+            return null;
         }
         String indent = detectIndent(lines, range[0], range[1]);
         int end = range[1];
         for (Map.Entry<String, String> entry : values.entrySet()) {
             end = setValue(lines, range[0], end, indent, entry.getKey(), entry.getValue());
         }
-        return writeLines(file, lines);
+        return lines;
     }
 
     /** 按给定顺序读取若干设置项，缺失的项不放入结果。 */
     public static Map<String, String> readValues(File file, Format format, String section,
                                                  String[] keys) {
+        return readValues(readLines(file), section, keys);
+    }
+
+    public static Map<String, String> readValues(List<String> lines, String section,
+                                                 String[] keys) {
         Map<String, String> values = new LinkedHashMap<>();
-        List<String> lines = readLines(file);
         for (String key : keys) {
             String value = readValue(lines, section, key);
             if (value != null) {
@@ -146,7 +175,7 @@ public final class TomlEditor {
         return values;
     }
 
-    private static String readValue(List<String> lines, String section, String key) {
+    public static String readValue(List<String> lines, String section, String key) {
         int[] range = sectionRange(lines, section, true);
         if (range == null) {
             return null;
@@ -271,6 +300,59 @@ public final class TomlEditor {
             close(reader);
         }
         return lines;
+    }
+
+    /** 按行读取整个文件，读不到时返回空串。 */
+    public static String readText(File file) {
+        StringBuilder builder = new StringBuilder();
+        List<String> lines = readLines(file);
+        for (int i = 0; i < lines.size(); i++) {
+            if (i > 0) {
+                builder.append('\n');
+            }
+            builder.append(lines.get(i));
+        }
+        return builder.toString();
+    }
+
+    /** 覆盖写入文本，保留原始换行内容。 */
+    public static boolean writeText(File file, String text) {
+        return writeLines(file, split(text));
+    }
+
+    /** 按 \n 切分，兼容 CRLF。 */
+    public static List<String> split(String text) {
+        List<String> lines = new ArrayList<>();
+        if (text == null || text.isEmpty()) {
+            return lines;
+        }
+        int start = 0;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '\n') {
+                int end = i;
+                if (end > start && text.charAt(end - 1) == '\r') {
+                    end--;
+                }
+                lines.add(text.substring(start, end));
+                start = i + 1;
+            }
+        }
+        if (start < text.length()) {
+            lines.add(text.substring(start));
+        }
+        return lines;
+    }
+
+    /** 用 \n 拼回文本。 */
+    public static String join(List<String> lines) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < lines.size(); i++) {
+            if (i > 0) {
+                builder.append('\n');
+            }
+            builder.append(lines.get(i));
+        }
+        return builder.toString();
     }
 
     private static boolean writeLines(File file, List<String> lines) {
