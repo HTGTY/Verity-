@@ -1,0 +1,13 @@
+v1.3版本：
+1. 内置“一键安装游戏”的功能
+找到游戏目录的versions，创建一个文件夹：“1.20.1-Foge-Verity”
+随后将压缩包的内容解压到该文件夹下
+提示用户尝试启动“1.20.1-Foge-Verity”游戏
+
+2. 增加检查更新，在GitHub发布页寻找最新的版本，然后用户确认下载后，尝试下载到本地（/sdcard/Android/data）
+下载进度实时在通知里显示
+下载完毕后，临时发起安装请求。
+安装包放在/sdcard/Android/data/包名/cache/Download/apk/时间/xxx.apk
+作为临时文件，以便用户清理
+
+3. 设置->关于 显示仓库地址https://github.com/HTGTY/Verity-.git  开源协议：MIT

@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import com.verity.tool.util.McPaths;
+import com.verity.tool.util.GameFs;
 
 public class MainActivity extends BaseActivity {
 
@@ -33,6 +33,7 @@ public class MainActivity extends BaseActivity {
 
         MaterialCardView quick = findViewById(R.id.card_quick);
         MaterialCardView fix = findViewById(R.id.card_fix);
+        MaterialCardView install = findViewById(R.id.card_install);
 
         quick.setOnClickListener(v -> {
             if (ensurePermission()) {
@@ -45,14 +46,17 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+        install.setOnClickListener(v -> new GameInstaller(this).start());
+
         animateEntrance(quick, 0);
         animateEntrance(fix, 70);
+        animateEntrance(install, 140);
 
         findViewById(R.id.btn_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
 
         TextView pathHint = findViewById(R.id.path_hint);
-        pathHint.setText(getString(R.string.main_path_hint, McPaths.rootDir().getPath()));
+        pathHint.setText(getString(R.string.main_path_hint, GameFs.sourceDesc()));
     }
 
     private void animateEntrance(MaterialCardView card, long offset) {

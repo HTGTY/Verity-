@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.verity.tool.util.GitHubUtil;
+
 /** 关于：作者信息与联系方式，点击可复制。 */
 public class AboutActivity extends BaseActivity {
 
@@ -27,6 +29,12 @@ public class AboutActivity extends BaseActivity {
                 copy(getString(R.string.about_qq_label), getString(R.string.about_qq_value)));
         findViewById(R.id.row_group).setOnClickListener(v ->
                 copy(getString(R.string.about_group_label), getString(R.string.about_group_value)));
+        findViewById(R.id.row_repo).setOnClickListener(v -> copy(
+                getString(R.string.about_repo_label),
+                "https://github.com/" + GitHubUtil.REPO + ".git"));
+        findViewById(R.id.row_license).setOnClickListener(v ->
+                copy(getString(R.string.about_license_label),
+                        getString(R.string.about_license_value)));
     }
 
     private String versionName() {

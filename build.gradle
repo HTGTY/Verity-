@@ -200,9 +200,8 @@ tasks.register('compileSigner', JavaCompile) {
 tasks.register('signApk', JavaExec) {
     dependsOn 'packageApk', 'compileSigner'
     inputs.file('build/app-unsigned.apk')
-    outputs.file('out/VerityTool.apk')
+    outputs.file('VerityTool.apk')
     doFirst {
-        file('out').mkdirs()
         if (!keystoreFile.exists()) {
             keystoreFile.parentFile.mkdirs()
             runCmd(['keytool', '-genkeypair', '-v',
@@ -216,13 +215,13 @@ tasks.register('signApk', JavaExec) {
     classpath = files(configurations.apksigTool, 'build/signer')
     mainClass = 'SignApk'
     args keystoreFile.path, 'android', 'androiddebugkey', 'android',
-            file('build/app-unsigned.apk').path, file('out/VerityTool.apk').path, "$minSdk"
+            file('build/app-unsigned.apk').path, file('VerityTool.apk').path, "$minSdk"
 }
 
 tasks.named('assemble') {
     dependsOn 'signApk'
     doLast {
-        def apk = file('out/VerityTool.apk')
+        def apk = file('VerityTool.apk')
         println "==> 完成：${apk} (${apk.length()} bytes)"
     }
 }

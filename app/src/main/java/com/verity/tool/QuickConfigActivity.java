@@ -1,6 +1,8 @@
 package com.verity.tool;
 
 import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ImageView;
@@ -18,13 +20,17 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputEditText;
 
+import com.verity.tool.util.GameFs;
 import com.verity.tool.util.McPaths;
+import com.verity.tool.util.SafPicker;
+import com.verity.tool.util.SafStore;
 import com.verity.tool.util.ThemeUtils;
 import com.verity.tool.util.TomlEditor;
 import com.verity.tool.util.Validator;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /** 快捷配置：AI 接口置顶，下方是模组主设置与外观设置。 */
@@ -51,16 +57,17 @@ public class QuickConfigActivity extends BaseActivity {
     private static final String KEY_CUSTOM_NAME = "customName";
     private static final String KEY_COLOR_HUE = "colorHue";
     private static final int[] DAY_PRESETS = {1, 3, 5, 7, 10};
+    private static final int REQUEST_SAF = 2001;
 
     private String version;
     private TomlEditor.Format format;
-    private View layoutVersions;
+    private boolean safPrompted;
     private View titleVersion;
     private MaterialButton btnNext;
     private MaterialButton btnRedetect;
 
-    private MaterialCardView card1201;
-    private MaterialCardView card1211;
+    private LinearLayout layoutVersions;
+    private TextView dirHint;
     private TextView envStatus;
     private View layoutInputs;
     private TextInputEditText etModel;
@@ -78,8 +85,7 @@ public class QuickConfigActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quick_config);
 
-        card1201 = findViewById(R.id.card_v1201);
-        card1211 = findViewById(R.id.card_v1211);
+        dirHint = findViewById(R.id.dir_hint);
         envStatus = findViewById(R.id.env_status);
         layoutInputs = findViewById(R.id.layout_inputs);
         layoutVersions = findViewById(R.id.layout_versions);
@@ -93,9 +99,6 @@ public class QuickConfigActivity extends BaseActivity {
         sliderHue = findViewById(R.id.slider_hue);
         hueValue = findViewById(R.id.hue_value);
         toggleContainer = findViewById(R.id.container_toggles);
-
-        card1201.setOnClickListener(v -> selectVersion("1.20.1"));
-        card1211.setOnClickListener(v -> selectVersion("1.21.1"));
 
         btnNext.setOnClickListener(v -> checkEnvironment());
 
@@ -130,44 +133,62 @@ public class QuickConfigActivity extends BaseActivity {
         refreshVersions();
     }
 
+    /** 扫描 versions 下的全部目录，逐一列出供选择。 */
     private void refreshVersions() {
-        boolean has1201 = McPaths.versionInstalled("1.20.1");
-        boolean has1211 = McPaths.versionInstalled("1.21.1");
-
-        TextView status1201 = findViewById(R.id.status_v1201);
-        TextView status1211 = findViewById(R.id.status_v1211);
-        status1201.setText(has1201 ? R.string.version_available : R.string.version_missing);
-        status1211.setText(has1211 ? R.string.version_available : R.string.version_missing);
-
-        if (!has1201 && !has1211) {
-            envStatus.setText(R.string.version_missing_all);
+        List<McPaths.Entry> entries = McPaths.scan();
+        DirPicker.render(this, layoutVersions, dirHint, entries, entry -> {
+            version = entry.name;
+            envStatus.setText(entry.name);
+        }, DirPicker.COLLAPSE_LIMIT);
+        if (entries.isEmpty()) {
+            envStatus.setText(McPaths.rootReadable()
+                    ? R.string.version_missing_all : R.string.dir_denied);
         } else {
-            selectVersion(has1201 ? "1.20.1" : "1.21.1");
+            version = null;
+            envStatus.setText("");
         }
-    }
-
-    private void selectVersion(String target) {
-        if (!McPaths.versionInstalled(target)) {
-            Toast.makeText(this, getString(R.string.toast_version_not_installed, target),
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        version = target;
-        updateCard(card1201, target.equals("1.20.1"));
-        updateCard(card1211, target.equals("1.21.1"));
         hideWithAnimation(layoutInputs);
         showWithAnimation(btnNext);
-        envStatus.setText(getString(R.string.env_selected, target));
+
+        if (entries.isEmpty() && !McPaths.rootReadable()) {
+            requestSafIfNeeded();
+        }
     }
 
-    private void updateCard(MaterialCardView card, boolean selected) {
-        card.setStrokeWidth(selected ? dp(2) : dp(1));
-        card.setStrokeColor(selected
-                ? ThemeUtils.color(this, com.verity.tool.R.attr.colorPrimary)
-                : ThemeUtils.color(this, com.verity.tool.R.attr.colorOutline));
-        card.setCardBackgroundColor(selected
-                ? ThemeUtils.color(this, com.verity.tool.R.attr.colorPrimaryContainer)
-                : ThemeUtils.color(this, com.verity.tool.R.attr.colorSurface));
+    /** 读不到目录时引导授权，每个页面只主动弹一次。 */
+    private void requestSafIfNeeded() {
+        if (safPrompted || !GameFs.safSupported()) {
+            return;
+        }
+        safPrompted = true;
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.saf_title)
+                .setMessage(R.string.saf_quick_message)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.saf_go,
+                        (dialog, which) -> SafPicker.open(this, REQUEST_SAF))
+                .show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQUEST_SAF || resultCode != RESULT_OK || data == null) {
+            return;
+        }
+        Uri treeUri = data.getData();
+        if (treeUri == null) {
+            return;
+        }
+
+        SafStore.persist(this, treeUri, SafStore.pathOf(treeUri));
+        if (SafStore.root() == null) {
+            Toast.makeText(this, R.string.saf_unreadable, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Toast.makeText(this, R.string.saf_ready, Toast.LENGTH_SHORT).show();
+        refreshVersions();
     }
 
     private void checkEnvironment() {
@@ -175,33 +196,70 @@ public class QuickConfigActivity extends BaseActivity {
             Toast.makeText(this, R.string.toast_choose_version_first, Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!McPaths.versionInstalled(version)) {
-            envStatus.setText(getString(R.string.env_version_not_installed, version));
-            return;
-        }
-        File configDir = McPaths.configDir(version);
-        if (!configDir.isDirectory()) {
-            envStatus.setText(R.string.env_no_config_dir);
-            layoutInputs.setVisibility(View.GONE);
-            return;
-        }
-        File toml = McPaths.commonToml(version);
-        if (!toml.isFile()) {
-            envStatus.setText(R.string.env_no_toml);
+        String text = GameFs.readToml(version);
+        if (text == null) {
+            envStatus.setText(entryConfigurable(version)
+                    ? R.string.env_no_toml : R.string.env_no_config_dir);
             layoutInputs.setVisibility(View.GONE);
             return;
         }
 
-        format = TomlEditor.detectFormat(toml);
+        format = TomlEditor.detectFormat(text);
         String label = getString(format == TomlEditor.Format.LEGACY
                 ? R.string.config_format_legacy : R.string.config_format_modern);
-        envStatus.setText(getString(R.string.env_found, label, toml.getParentFile().getName()));
+        envStatus.setText(getString(R.string.env_found, label, "config"));
         hideWithAnimation(titleVersion);
         hideWithAnimation(layoutVersions);
         hideWithAnimation(btnNext);
         showWithAnimation(btnRedetect);
         showWithAnimation(layoutInputs);
-        prefill(toml, format);
+        prefill(text, format);
+    }
+
+    /** 版本目录里是否存在 verity-common.toml。 */
+    private boolean entryConfigurable(String name) {
+        for (McPaths.Entry entry : McPaths.scan()) {
+            if (entry.name.equals(name)) {
+                return entry.configurable;
+            }
+        }
+        return false;
+    }
+
+    private void prefill(String text, TomlEditor.Format detected) {
+        List<String> lines = TomlEditor.split(text);
+        TomlEditor.AiConfig config = TomlEditor.readAi(lines, detected);
+        if (config.model != null && !config.model.isEmpty()) {
+            etModel.setText(config.model);
+        }
+        if (config.url != null && !config.url.isEmpty()) {
+            etUrl.setText(config.url);
+        }
+        if (config.key != null && !config.key.isEmpty() && !"这里是密钥".equals(config.key)) {
+            etKey.setText(config.key);
+        }
+
+        String togglesSection = TomlEditor.togglesSection(detected);
+        Map<String, String> values =
+                TomlEditor.readValues(lines, togglesSection, toggleKeys(detected));
+        String days = TomlEditor.readValue(lines, togglesSection, KEY_DAY_COUNT);
+        if (days != null && !days.isEmpty()) {
+            etDayCount.setText(days);
+        }
+        buildToggles(detected, values);
+
+        String customSection = TomlEditor.customSection(detected);
+        String name = TomlEditor.readValue(lines, customSection, KEY_CUSTOM_NAME);
+        if (name != null && !name.isEmpty()) {
+            etCustomName.setText(name);
+        }
+        String hue = TomlEditor.readValue(lines, customSection, KEY_COLOR_HUE);
+        if (hue != null && !hue.trim().isEmpty()) {
+            try {
+                sliderHue.setValue(Float.parseFloat(hue.trim()));
+            } catch (NumberFormatException ignored) {
+            }
+        }
     }
 
     private void prefill(File toml, TomlEditor.Format detected) {
@@ -340,8 +398,15 @@ public class QuickConfigActivity extends BaseActivity {
             return;
         }
 
-        File toml = McPaths.commonToml(version);
-        if (!TomlEditor.writeAi(toml, format, model, url, key)) {
+        String text = GameFs.readToml(version);
+        if (text == null) {
+            showWriteFailure();
+            return;
+        }
+
+        List<String> lines = TomlEditor.split(text);
+        lines = TomlEditor.writeAi(lines, format, model, url, key);
+        if (lines == null) {
             showWriteFailure();
             return;
         }
@@ -351,8 +416,8 @@ public class QuickConfigActivity extends BaseActivity {
             togglesValues.put(entry.getKey(), entry.getValue().isChecked() ? "true" : "false");
         }
         togglesValues.put(KEY_DAY_COUNT, days);
-        if (!TomlEditor.writeValues(toml, format, TomlEditor.togglesSection(format),
-                togglesValues)) {
+        lines = TomlEditor.writeValues(lines, TomlEditor.togglesSection(format), togglesValues);
+        if (lines == null) {
             showWriteFailure();
             return;
         }
@@ -360,18 +425,26 @@ public class QuickConfigActivity extends BaseActivity {
         Map<String, String> customValues = new LinkedHashMap<>();
         customValues.put(KEY_CUSTOM_NAME, TomlEditor.quote(name));
         customValues.put(KEY_COLOR_HUE, String.valueOf((int) sliderHue.getValue()));
-        if (!TomlEditor.writeValues(toml, format, TomlEditor.customSection(format),
-                customValues)) {
+        lines = TomlEditor.writeValues(lines, TomlEditor.customSection(format), customValues);
+        if (lines == null) {
             showWriteFailure();
             return;
         }
 
-        TomlEditor.AiConfig written = TomlEditor.readAi(toml, format);
+        if (!GameFs.writeToml(version, TomlEditor.join(lines))) {
+            showWriteFailure();
+            return;
+        }
+
+        String after = GameFs.readToml(version);
+        List<String> afterLines = after == null
+                ? new java.util.ArrayList<>() : TomlEditor.split(after);
+        TomlEditor.AiConfig written = TomlEditor.readAi(afterLines, format);
         if (!model.equals(written.model) || !url.equals(written.url)) {
             dialog(getString(R.string.title_verify_failed), getString(R.string.verify_failed));
             return;
         }
-        String writtenName = TomlEditor.readValue(toml, format,
+        String writtenName = TomlEditor.readValue(afterLines,
                 TomlEditor.customSection(format), KEY_CUSTOM_NAME);
         if (!name.equals(writtenName)) {
             dialog(getString(R.string.title_verify_failed), getString(R.string.verify_name_failed));
@@ -412,7 +485,8 @@ public class QuickConfigActivity extends BaseActivity {
         showWithAnimation(layoutVersions);
         showWithAnimation(btnNext);
         format = null;
-        envStatus.setText(getString(R.string.env_selected, version));
+        envStatus.setText("");
+        refreshVersions();
     }
 
     private void setupCollapsible(int headerId, int sectionId, int arrowId) {
